@@ -1,0 +1,274 @@
+version: '3.8'
+
+services:
+  # desktop专用解决权限问题
+  # MySQL Master - 最优配置
+  mysql-master:
+    image: mysql:8.0
+    container_name: zfile-mysql-master
+    hostname: mysql-master-hostname
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-master/data:/var/lib/mysql
+      - ./mysql-master/logs:/var/log/mysql
+      - ./mysql-master/conf/mysql.cnf:/tmp/mysql.cnf:ro
+      - ./database-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: >
+      sh -c "
+        cp /tmp/mysql.cnf /etc/mysql/conf.d/ &&
+        chmod 644 /etc/mysql/conf.d/mysql.cnf &&
+        exec docker-entrypoint.sh mysqld
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+
+  # MySQL Slave - 最优配置
+  mysql-slave:
+    image: mysql:8.0
+    container_name: zfile-mysql-slave
+    hostname: mysql-slave-hostname
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql-slave/data:/var/lib/mysql
+      - ./mysql-slave/logs:/var/log/mysql
+      - ./mysql-slave/conf/mysql.cnf:/tmp/mysql.cnf:ro
+      - ./database-init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: >
+      sh -c "
+        cp /tmp/mysql.cnf /etc/mysql/conf.d/ &&
+        chmod 644 /etc/mysql/conf.d/mysql.cnf &&
+        exec docker-entrypoint.sh mysqld
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.11
+    depends_on:
+      - mysql-master
+    restart: unless-stopped
+
+  # Redis Master
+  redis-master:
+    image: redis:7.0-alpine
+    container_name: zfile-redis-master
+    hostname: redis-master-hostname
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-master/data:/data
+      - ./redis-master/logs:/var/log/redis
+      - ./redis-master/conf/redis.cnf:/tmp/redis.cnf:ro
+    command: >
+      sh -c "
+        mkdir -p /etc/redis &&
+        cp /tmp/redis.cnf /etc/redis/redis.conf &&
+        chmod 644 /etc/redis/redis.conf &&
+        exec redis-server /etc/redis/redis.conf
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.20
+
+  # Redis Slave
+  redis-slave:
+    image: redis:7.0-alpine
+    container_name: zfile-redis-slave
+    hostname: redis-slave-hostname
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis-slave/data:/data
+      - ./redis-slave/logs:/var/log/redis
+      - ./redis-slave/conf/redis.cnf:/tmp/redis.cnf:ro
+    command: >
+      sh -c "
+        mkdir -p /etc/redis &&
+        cp /tmp/redis.cnf /etc/redis/redis.conf &&
+        chmod 644 /etc/redis/redis.conf &&
+        exec redis-server /etc/redis/redis.conf
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.21
+    depends_on:
+      - redis-master
+
+  # Redis Sentinel 1
+  redis-sentinel-1:
+    image: redis:7.0-alpine
+    container_name: zfile-redis-sentinel-1
+    hostname: redis-sentinel-1-hostname
+    ports:
+      - "26379:26379"
+    volumes:
+      - ./redis-sentinel1/data:/data
+      - ./redis-sentinel1/logs:/var/log/redis
+      - ./redis-sentinel1/conf/sentinel1.cnf:/tmp/sentinel.cnf:ro
+    command: >
+      sh -c "
+        mkdir -p /etc/redis &&
+        cp /tmp/sentinel.cnf /etc/redis/sentinel.conf &&
+        chmod 644 /etc/redis/sentinel.conf &&
+        exec redis-sentinel /etc/redis/sentinel.conf
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.22
+    depends_on:
+      - redis-master
+      - redis-slave
+
+  # Redis Sentinel 2
+  redis-sentinel-2:
+    image: redis:7.0-alpine
+    container_name: zfile-redis-sentinel-2
+    hostname: redis-sentinel-2-hostname
+    ports:
+      - "26380:26379"
+    volumes:
+      - ./redis-sentinel2/data:/data
+      - ./redis-sentinel2/logs:/var/log/redis
+      - ./redis-sentinel2/conf/sentinel2.cnf:/tmp/sentinel.cnf:ro
+    command: >
+      sh -c "
+        mkdir -p /etc/redis &&
+        cp /tmp/sentinel.cnf /etc/redis/sentinel.conf &&
+        chmod 644 /etc/redis/sentinel.conf &&
+        exec redis-sentinel /etc/redis/sentinel.conf
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.23
+    depends_on:
+      - redis-master
+      - redis-slave
+
+  # Redis Sentinel 3
+  redis-sentinel-3:
+    image: redis:7.0-alpine
+    container_name: travel-redis-sentinel-3
+    hostname: redis-sentinel-3-hostname
+    ports:
+      - "26381:26379"
+    volumes:
+      - ./redis-sentinel3/data:/data
+      - ./redis-sentinel3/logs:/var/log/redis
+      - ./redis-sentinel3/conf/sentinel3.cnf:/tmp/sentinel.cnf:ro
+    command: >
+      sh -c "
+        mkdir -p /etc/redis &&
+        cp /tmp/sentinel.cnf /etc/redis/sentinel.conf &&
+        chmod 644 /etc/redis/sentinel.conf &&
+        exec redis-sentinel /etc/redis/sentinel.conf
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.24
+    depends_on:
+      - redis-master
+      - redis-slave
+      
+  # Nacos Server
+  nacos-server:
+    image: nacos/nacos-server:v2.2.3
+    container_name: nacos-server
+    hostname: nacos-server
+    environment:
+      - MODE=standalone
+      - PREFER_HOST_MODE=hostname
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    restart: unless-stopped
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.30
+
+  # RocketMQ Name Server
+  rmqnamesrv:
+    image: apache/rocketmq:4.9.4
+    hostname: rocketmq
+    restart: unless-stopped
+    container_name: integrated-example-rmqnamesrv
+    ports:
+      - "9876:9876"
+    command: sh mqnamesrv
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.40
+
+  # RocketMQ Broker
+  rmqbroker:
+    image: apache/rocketmq:4.9.4
+    restart: unless-stopped
+    container_name: integrated-example-rmqbroker
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+    volumes:
+      - ./rocketmq/conf/broker.conf:/tmp/broker.conf:ro
+    environment:
+      NAMESRV_ADDR: "rmqnamesrv:9876"
+      JAVA_OPTS: " -Duser.home=/opt"
+      JAVA_OPT_EXT: "-server -Xms128m -Xmx128m -Xmn128m"
+    command: >
+      sh -c "
+        mkdir -p /home/rocketmq/store &&
+        cp /tmp/broker.conf /home/rocketmq/rocketmq-4.9.4/conf/broker.conf &&
+        chmod 644 /home/rocketmq/rocketmq-4.9.4/conf/broker.conf &&
+        exec sh mqbroker -n rmqnamesrv:9876 -c /home/rocketmq/rocketmq-4.9.4/conf/broker.conf
+      "
+    depends_on:
+      - rmqnamesrv
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.41
+
+  # Nginx Server
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-server
+    hostname: nginx-server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/conf/nginx.conf:/tmp/nginx.conf:ro
+    restart: unless-stopped
+    command: >
+      sh -c "
+        mkdir -p /etc/nginx/conf.d &&
+        cp /tmp/nginx.conf /etc/nginx/nginx.conf &&
+        chmod 644 /etc/nginx/nginx.conf &&
+        exec nginx -g 'daemon off;'
+      "
+    networks:
+      zfile-network:
+        ipv4_address: 172.20.0.60
+
+volumes:
+  redis_master_data:
+  redis_slave_data:
+
+networks:
+  zfile-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

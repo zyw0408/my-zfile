@@ -1,0 +1,44 @@
+# Redis 哨兵节点2配置文件
+# 用于监控Redis主从集群，实现高可用性
+
+# *************** 基础配置 *************** #
+# 哨兵服务端口
+port 26379
+# 绑定IP地址，0.0.0.0表示允许所有IP访问
+bind 0.0.0.0
+# 工作目录
+dir /tmp
+# 是否以守护进程方式运行，no表示前台运行
+daemonize no
+# PID文件路径
+pidfile /var/run/redis-sentinel.pid
+# 日志文件路径
+logfile "/var/log/redis/sentinel.log"
+# 日志级别：debug, verbose, notice, warning
+loglevel notice
+
+# *************** 监控配置 *************** #
+# 监控的主节点配置
+# 格式：sentinel monitor <mastername> <ip> <port> <quorum>
+# mymaster: 主节点名称
+# 172.20.0.20: 主节点IP地址
+# 6379: 主节点端口
+# 2: 至少需要2个哨兵节点同意才能进行故障转移
+sentinel monitor mymaster 172.20.0.20 6379 2
+
+# *************** 认证配置 *************** #
+# 主节点认证密码（重复配置确保可靠性）
+# 格式：sentinel auth-pass <mastername> <password>
+sentinel auth-pass mymaster 123456
+
+# *************** 认证配置 *************** #
+# 主节点认证密码（重复配置确保可靠性）
+sentinel auth-pass mymaster 123456
+
+# *************** 故障检测配置 *************** #
+# 毫秒数，如果主节点在指定时间内没有响应PING，则认为其下线
+sentinel down-after-milliseconds mymaster 5000
+# 故障转移后，同时进行复制的从节点数量，数值越小复制时间越长但负载越小
+sentinel parallel-syncs mymaster 1
+# 故障转移超时时间（毫秒）
+sentinel failover-timeout mymaster 10000

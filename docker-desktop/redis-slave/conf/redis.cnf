@@ -1,0 +1,55 @@
+# Redis 从节点配置文件
+# 用于配置Redis从服务器的各项参数
+
+# *************** 网络配置 *************** #
+# 绑定IP地址，0.0.0.0表示允许所有IP访问
+bind 0.0.0.0
+# 启用保护模式，防止外部网络未授权访问
+protected-mode yes
+# Redis服务端口
+port 6379
+# 客户端空闲超时时间（秒），0表示永不超时
+timeout 0
+
+# *************** 基础配置 *************** #
+# 是否以守护进程方式运行，no表示前台运行
+daemonize no
+# PID文件路径
+pidfile /var/run/redis.pid
+# 日志级别：debug, verbose, notice, warning
+loglevel notice
+# 日志文件路径（被注释掉，使用默认输出）
+# logfile "/var/log/redis/redis.log"
+
+# *************** 持久化配置(RDB) *************** #
+# RDB持久化规则：900秒内至少1个key变化则保存
+save 900 1
+# RDB持久化规则：300秒内至少10个key变化则保存
+save 300 10
+# RDB持久化规则：60秒内至少10000个key变化则保存
+save 60 10000
+# 是否压缩RDB文件
+rdbcompression yes
+# RDB文件名
+dbfilename dump.rdb
+# RDB文件存储目录
+dir /data
+
+# *************** 安全配置 *************** #
+# Redis服务器密码认证
+requirepass 123456
+# 主从复制时的认证密码
+masterauth 123456
+
+# *************** 持久化配置(AOF) *************** #
+# 是否启用AOF持久化
+appendonly yes
+
+# *************** 主从复制配置 *************** #
+# 指定主节点地址和端口
+replicaof 172.20.0.20 6379
+# 从节点是否只读
+replica-read-only yes
+# 复制优化配置
+# 复制超时时间（秒）
+repl-timeout 120
