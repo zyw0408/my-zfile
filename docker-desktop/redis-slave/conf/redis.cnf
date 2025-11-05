@@ -7,7 +7,7 @@ bind 0.0.0.0
 # 启用保护模式，防止外部网络未授权访问
 protected-mode yes
 # Redis服务端口
-port 6379
+port 6380
 # 客户端空闲超时时间（秒），0表示永不超时
 timeout 0
 

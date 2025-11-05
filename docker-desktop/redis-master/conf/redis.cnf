@@ -19,7 +19,7 @@ pidfile /var/run/redis.pid
 # 日志级别：debug, verbose, notice, warning
 loglevel notice
 # 日志文件路径（被注释掉，使用默认输出）
-# logfile "/var/log/redis/redis.log"
+logfile "/var/log/redis/redis.log"
 
 # *************** 持久化配置(RDB) *************** #
 # RDB持久化规则：900秒内至少1个key变化则保存
@@ -38,6 +38,7 @@ dir /data
 # *************** 安全配置 *************** #
 # Redis服务器密码认证
 requirepass 123456
+
 # 主从复制时的认证密码
 masterauth 123456
 
