@@ -3,7 +3,7 @@
 # 服务器唯一ID，主从节点必须不同
 server-id = 2
 # MySQL服务端口
-port = 3306
+port = 3307
 # 数据存储目录
 datadir = /var/lib/mysql
 # 套接字文件路径

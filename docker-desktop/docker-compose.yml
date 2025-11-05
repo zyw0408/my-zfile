@@ -182,22 +182,6 @@ services:
     depends_on:
       - redis-master
       - redis-slave
-      
-  # Nacos Server
-  nacos-server:
-    image: nacos/nacos-server:v2.2.3
-    container_name: nacos-server
-    hostname: nacos-server
-    environment:
-      - MODE=standalone
-      - PREFER_HOST_MODE=hostname
-    ports:
-      - "8848:8848"
-      - "9848:9848"
-    restart: unless-stopped
-    networks:
-      zfile-network:
-        ipv4_address: 172.20.0.30
 
   # RocketMQ Name Server
   rmqnamesrv:
