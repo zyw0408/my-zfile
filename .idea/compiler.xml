@@ -2,11 +2,14 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+      </profile>
       <profile name="Annotation profile for zfile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
+        <processorPath>
           <entry name="D:/apache-maven-3.9.11/maven-repo/org/mapstruct/mapstruct-processor/1.5.3.Final/mapstruct-processor-1.5.3.Final.jar" />
           <entry name="D:/apache-maven-3.9.11/maven-repo/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
           <entry name="D:/apache-maven-3.9.11/maven-repo/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
@@ -14,11 +17,23 @@
         </processorPath>
         <module name="zfile" />
       </profile>
+      <profile name="Annotation profile for my-zfile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../../../../../soft/apache-maven-3.9.11/myrepository/org/mapstruct/mapstruct-processor/1.5.3.Final/mapstruct-processor-1.5.3.Final.jar" />
+          <entry name="$PROJECT_DIR$/../../../../../soft/apache-maven-3.9.11/myrepository/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
+          <entry name="$PROJECT_DIR$/../../../../../soft/apache-maven-3.9.11/myrepository/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+          <entry name="$PROJECT_DIR$/../../../../../soft/apache-maven-3.9.11/myrepository/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
+        </processorPath>
+        <module name="my-zfile" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="zfile" options="-parameters" />
+      <module name="my-zfile" options="-parameters" />
     </option>
   </component>
 </project>
