@@ -78,6 +78,8 @@ services:
         mkdir -p /etc/redis &&
         cp /tmp/redis.cnf /etc/redis/redis.conf &&
         chmod 644 /etc/redis/redis.conf &&
+        # 修复数据目录权限
+        chmod 777 /data &&
         exec redis-server /etc/redis/redis.conf
       "
     networks:
@@ -89,6 +91,8 @@ services:
     image: redis:7.0-alpine
     container_name: zfile-redis-slave
     hostname: redis-slave-hostname
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "6380:6379"
     volumes:
@@ -100,6 +104,10 @@ services:
         mkdir -p /etc/redis &&
         cp /tmp/redis.cnf /etc/redis/redis.conf &&
         chmod 644 /etc/redis/redis.conf &&
+        # 修复数据目录权限
+        chmod 777 /data &&
+        # 等待主库启动
+        sleep 5 &&
         exec redis-server /etc/redis/redis.conf
       "
     networks:
@@ -124,6 +132,8 @@ services:
         mkdir -p /etc/redis &&
         cp /tmp/sentinel.cnf /etc/redis/sentinel.conf &&
         chmod 644 /etc/redis/sentinel.conf &&
+        # 等待 Redis 节点启动
+        sleep 10 &&
         exec redis-sentinel /etc/redis/sentinel.conf
       "
     networks:
@@ -149,6 +159,8 @@ services:
         mkdir -p /etc/redis &&
         cp /tmp/sentinel.cnf /etc/redis/sentinel.conf &&
         chmod 644 /etc/redis/sentinel.conf &&
+        # 等待 Redis 节点启动
+        sleep 10 &&
         exec redis-sentinel /etc/redis/sentinel.conf
       "
     networks:
@@ -161,7 +173,7 @@ services:
   # Redis Sentinel 3
   redis-sentinel-3:
     image: redis:7.0-alpine
-    container_name: travel-redis-sentinel-3
+    container_name: zfile-redis-sentinel-3  # 修正容器名
     hostname: redis-sentinel-3-hostname
     ports:
       - "26381:26379"
@@ -174,6 +186,8 @@ services:
         mkdir -p /etc/redis &&
         cp /tmp/sentinel.cnf /etc/redis/sentinel.conf &&
         chmod 644 /etc/redis/sentinel.conf &&
+        # 等待 Redis 节点启动
+        sleep 10 &&
         exec redis-sentinel /etc/redis/sentinel.conf
       "
     networks:

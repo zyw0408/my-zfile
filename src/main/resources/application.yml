@@ -7,16 +7,52 @@ spring:
   application:
     name: my-zfile
   datasource:
-    url: jdbc:mysql://localhost:3306/zfile?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://127.0.0.1:3306/zfile?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+          username: ${MYSQL_USER:user}
+          password: ${MYSQL_PASSWORD:123456}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          hikari:
+            minimum-idle: 5
+            maximum-pool-size: 20
+            idle-timeout: 300000
+            max-lifetime: 1200000
+            connection-timeout: 30000
+        slave:
+          url: jdbc:mysql://127.0.0.1:3307/zfile?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+          username: ${MYSQL_USER:user}
+          password: ${MYSQL_PASSWORD:123456}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          hikari:
+            minimum-idle: 5
+            maximum-pool-size: 20
+            idle-timeout: 300000
+            max-lifetime: 1200000
+            connection-timeout: 30000
   flyway:
     enabled: true
     baseline-on-migrate: true
     baseline-version: 0
     locations: classpath:db/migration
-
+  data:
+    redis:
+      sentinel:
+        master: mymaster  # 哨兵监控的主节点名称
+        nodes:
+          - 127.0.0.1:26379
+          - 127.0.0.1:26380
+          - 127.0.0.1:26381
+        password: ${REDIS_PASSWORD:123456}  # Redis 密码
+      database: 0
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
